@@ -341,6 +341,12 @@ workflow {
 
 workflow.onComplete {
     Pinguscript.ping_complete(nextflow, workflow, params)
+    sendMail(
+        to: 'ward.deboutte@gmail.com',
+        subject: 'GREEN LIGHT',
+        body: 'Hi, how are you!',
+        attachment: 'output/wf-alignment-report.html'
+)
 }
 workflow.onError {
     Pinguscript.ping_error(nextflow, workflow, params)
