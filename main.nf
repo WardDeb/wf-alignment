@@ -62,6 +62,20 @@ process bamstats {
     """
 }
 
+process flagstat_extra {
+    label "wfalignment"
+    cpus 2
+    input:
+        tuple val(meta), path(bam), path(index)
+    output:
+        path "*.readstats_extra.tsv", emit: flagstats_extraout
+    script:
+        def sample_name = meta["alias"]
+    """
+    samtools flagstat $bam > ${sample_name}.readstats_extra.tsv
+    """
+}
+
 process addStepsColumn {
     // TODO: we don't need 200 windows for very short references; find heuristics for
     // determining window length / number for such cases
@@ -223,6 +237,8 @@ workflow pipeline {
 
         // get stats
         stats = bamstats(bam)
+        // get flagstat extra
+        statsextra = flagstat_extra(bam)
 
         // determine read_depth per reference / bam file if requested
         depth_per_ref = Channel.of(OPTIONAL_FILE)
@@ -251,6 +267,7 @@ workflow pipeline {
         software_versions
         combined_ref = refs.combined
         combined_ref_index = refs.combined_index
+        flagstats_extraout = statsextra.flagstats_extraout
 }
 
 
